@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <script>
+        const H = window.innerHeight
+        const W = window.innerWidth
+        var config = {
+            type: Phaser.AUTO,
+            width: W,
+            height: H,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 1000 },
+                    debug: false
+                }
+            },
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
+        };
+
+        var platform
+        var player
+        var jump = false
+        var game = new Phaser.Game(config);
+
+        function preload ()
+        {
+            this.load.image('sky','assets/sky.png')
+            this.load.image('ground','assets/platform.png')
+            this.load.spritesheet('chara50x36', 'assets/chara.png', {frameWidth: 50, frameHeight: 36});
+            this.load.spritesheet('chara50x38', 'assets/chara.png', {frameWidth: 50, frameHeight: 38});
+        }
+
+        function create ()
+        {
+            /** Background */
+            const bg = this.add.image(W/2, H/2, 'sky');
+            bg.setScale(5)
+
+            /** Ground */
+            platform = this.physics.add.staticGroup();
+            // platform.create(W/2, H+20, 'ground').setScale(1).refreshBody();
+            platform.create(W/2, H, 'ground').setScale(1).refreshBody();
+
+
+            /** The player and its settings */
+            player = this.physics.add.sprite(200, 200, 'chara50x36');
+
+            /** Player physics properties. Give the little guy a slight bounce. */
+            player.setScale(2);
+            player.setBounce(0.2);
+            player.setCollideWorldBounds(true);
+
+
+            this.anims.create({
+                key: 'idle',
+                frames: this.anims.generateFrameNumbers('chara50x36', { start: 0, end: 3 }),
+                frameRate: 5,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'move',
+                frames: this.anims.generateFrameNumbers('chara50x36', { start: 8, end: 13 }),
+                frameRate: 9,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'crouch',
+                frames: this.anims.generateFrameNumbers('chara50x36', { start: 4, end: 7 }),
+                frameRate: 9,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'jump',
+                frames: this.anims.generateFrameNumbers('chara50x38', { start: 15, end: 23 }),
+                frameRate: 10,
+                repeat: -1
+            });
+            
+
+            //  Input Events
+            cursors = this.input.keyboard.createCursorKeys();
+
+            //  Collide the player and the stars with the platform
+            this.physics.add.collider(player, platform);
+
+        }
+
+        function update ()
+        {
+            if (cursors.left.isDown)
+            {
+                player.setVelocityX(-160);
+
+                player.flipX = true
+                if (!jump)
+                    player.anims.play('move', true);
+            }
+            else if (cursors.right.isDown)
+            {
+                player.setVelocityX(160);
+
+                player.flipX = false
+                if (!jump)
+                    player.anims.play('move', true);
+            }
+            else if(cursors.down.isDown)
+            {
+                player.setVelocityX(0);
+                player.anims.play('crouch', true);
+            }
+            else
+            {
+                player.setVelocityX(0);
+
+                if (jump)
+                {
+                    setTimeout(() => {
+                        player.anims.play('idle', true);
+                        jump = false
+                    }, 800);
+                } else {
+                    player.anims.play('idle', true);
+                }
+            }
+
+            if (cursors.up.isDown)
+            {
+                player.setVelocityY(-400);
+
+                // jump = true
+                // player.anims.play('jump', true);
+            }
+        }
+
+        // function preload ()
+        // {
+        //     this.load.setBaseURL('http://labs.phaser.io');
+
+        //     this.load.image('sky', 'assets/skies/space3.png');
+        //     this.load.image('logo', 'assets/sprites/phaser3-logo.png');
+        //     this.load.image('red', 'assets/particles/red.png');
+        // }
+
+        // function create ()
+        // {
+        //     this.add.image(400, 300, 'sky');
+
+        //     var particles = this.add.particles('red');
+
+        //     var emitter = particles.createEmitter({
+        //         speed: 100,
+        //         scale: { start: 1, end: 0 },
+        //         blendMode: 'ADD'
+        //     });
+
+        //     var logo = this.physics.add.image(400, 100, 'logo');
+
+        //     logo.setVelocity(100, 200);
+        //     logo.setBounce(1, 1);
+        //     logo.setCollideWorldBounds(true);
+
+        //     emitter.startFollow(logo);
+        // }
+    </script>
+
+</body>
+</html>
