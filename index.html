@@ -42,6 +42,7 @@
             this.load.image('ground','assets/platform.png')
             this.load.spritesheet('chara50x36', 'assets/chara.png', {frameWidth: 50, frameHeight: 36});
             this.load.spritesheet('chara50x38', 'assets/chara.png', {frameWidth: 50, frameHeight: 38});
+            this.load.spritesheet('chara-combat', 'assets/chara-combat.png', {frameWidth: 50, frameHeight: 38});
         }
 
         function create ()
@@ -82,21 +83,27 @@
             this.anims.create({
                 key: 'crouch',
                 frames: this.anims.generateFrameNumbers('chara50x36', { start: 4, end: 7 }),
-                frameRate: 9,
+                frameRate: 5,
                 repeat: -1
             });
-
             this.anims.create({
-                key: 'jump',
-                frames: this.anims.generateFrameNumbers('chara50x38', { start: 15, end: 23 }),
+                key: 'attack',
+                frames: this.anims.generateFrameNumbers('chara-combat', {start: 4, end: 6}),
                 frameRate: 10,
-                repeat: -1
-            });
+                repeat: 1
+            })
+
+            // this.anims.create({
+            //     key: 'jump',
+            //     frames: this.anims.generateFrameNumbers('chara50x38', { start: 15, end: 23 }),
+            //     frameRate: 10,
+            //     repeat: -1
+            // });
             
 
             //  Input Events
             cursors = this.input.keyboard.createCursorKeys();
-
+            attkey = this.input.keyboard.addKey('D')
             //  Collide the player and the stars with the platform
             this.physics.add.collider(player, platform);
 
@@ -125,6 +132,11 @@
                 player.setVelocityX(0);
                 player.anims.play('crouch', true);
             }
+            else if (attkey.isDown)
+            {
+                player.setVelocityX(0);
+                player.anims.play('attack', true)
+            }
             else
             {
                 player.setVelocityX(0);
@@ -140,9 +152,9 @@
                 }
             }
 
-            if (cursors.up.isDown)
+            if (cursors.up.isDown & player.body.touching.down)
             {
-                player.setVelocityY(-400);
+                // player.setVelocityY(-400);
 
                 // jump = true
                 // player.anims.play('jump', true);
